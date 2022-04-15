@@ -1,5 +1,7 @@
-# For developement use (simple logging etc.)
+#! /bin/sh
+if [ $env == "prod" ] 
+then
+gunicorn -b "$host:$port" main:app --log-file -
+else
 python3 main.py
-
-# For production
-# gunicorn main:app -w 1 --log-file -
+fi

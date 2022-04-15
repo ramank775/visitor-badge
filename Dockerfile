@@ -2,6 +2,7 @@ FROM python:3.10-alpine
 
 ENV host='0.0.0.0'
 ENV port=5000
+ENV env=prod
 
 WORKDIR /app
 
@@ -11,6 +12,10 @@ RUN pip install -r /app/requirements.txt
 
 COPY . /app
 
+RUN dos2unix /app/start.sh
+
+RUN chmod +x /app/start.sh
+
 EXPOSE 5000
 
-CMD [ "python3", "main.py" ]
+ENTRYPOINT [ "/app/start.sh" ]

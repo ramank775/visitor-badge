@@ -3,13 +3,14 @@ import datetime
 from flask import Flask, Response, request, render_template
 from pybadges import badge
 from hashlib import md5
-import requests
 from os import environ
 from dotenv import find_dotenv, load_dotenv
+import redis
 
 load_dotenv(find_dotenv())
 
 app = Flask(__name__)
+redis_conn = None
 
 
 def invalid_count_resp(err_msg) -> Response:
@@ -17,8 +18,7 @@ def invalid_count_resp(err_msg) -> Response:
     Return a svg badge with error info when cannot process repo_id param from request
     :return: A response with invalid request badge
     """
-    svg = badge(left_text="Error", right_text=err_msg,
-                whole_link="https://github.com/jwenjian/visitor-badge")
+    svg = badge(left_text="Error", right_text=err_msg)
     expiry_time = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
 
     headers = {'Cache-Control': 'no-cache,max-age=0',
@@ -28,13 +28,8 @@ def invalid_count_resp(err_msg) -> Response:
 
 
 def update_counter(key):
-    url = 'https://api.countapi.xyz/hit/visitor-badge/{0}'.format(key)
     try:
-        resp = requests.get(url)
-        if resp and resp.status_code == 200:
-            return resp.json()['value']
-        else:
-            return None
+        return redis_conn.incr(key)
     except Exception as e:
         return None
 
@@ -55,7 +50,7 @@ def visitor_svg() -> Response:
     latest_count = update_counter(req_source)
 
     if not latest_count:
-        return invalid_count_resp("Count API Failed")
+        return invalid_count_resp("Failed to reterive count")
 
     # get left color and right color
     left_color = "#595959"
@@ -98,6 +93,10 @@ def identity_request_source() -> str:
 
 
 if __name__ == '__main__':
+    redis_host = environ.get('redis_host', '127.0.0.1')
+    redis_port = environ.get('redis_port', 6379)
+    redis_db = environ.get('redis_db', 0)
+    redis_conn = redis.Redis(host=redis_host, port=redis_port, db=redis_db)
     host = environ.get('host', '127.0.0.1')
     port = environ.get('port', 5000)
     app.run(host=host, port=port)

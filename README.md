@@ -1,91 +1,72 @@
-# visitor-badge
+# Visitor Badge
 
-> **Warning**
->
-> **The service is now deployed under a free version of glitch, so it will down if too many requests in the same time**
->
-> Update at 2023-04-28: [CountAPI](https://countapi.xyz/) service is DOWN, looking for another alternative for now, but it takes time, you should consider using [hits](https://github.com/dwyl/hits) as alternative (more stable), see [issue #32](https://github.com/jwenjian/visitor-badge/issues/32) 
+Count visitors for your GitHub, Blog or Portfolio Site in just one line markdown code or one api call
+
+![visitor badge](https://visitor-badge.one9x.com/badge?page_id=visitor-badge)
 
 
-You can:
+## How to use?
 
-1. fork this project and deploy under your glitch account and let it working for yourself, it should be enough.
-2. use [hits](https://github.com/dwyl/hits) / [visitor-badge@plantree](https://plantree.github.io/project-docs/visitor-badge/introduction.html) as alternative solution
-3. consider a donation :-)
+If you know how to add picture in markdown or image in html, then you are good to go.
 
----
+#### Markdown
 
-A badge generator service to count visitors of your markdown file.
-
-[The story of visitor badge](https://medium.com/@1link.fun/the-story-of-visitor-badge-1bded5ed56b4)
-
-Examples:
-
-- default style
-
-```markdown
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge)
+```md
+![visitors](https://visitor-badge.example.net/badge?page_id={page.id}&left_color=red&right_color=green)
 ```
 
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge)
+#### HTML
 
-- customized left text (default is `visitors`)
-
-```markdown
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge&left_text=MyPageVisitors)
-```
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge&left_text=MyPageVisitors)
-
-- customized left text with a space between words
-
-```markdown
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge&left_text=My%20Page%20Visitors)
-```
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge&left_text=My%20Page%20Visitors)
-
-- customzied color
-
-```markdown
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge&left_color=red&right_color=green) 
+```html
+<img src="https://visitor-badge.example.net/badge?page_id={page.id}&left_color=red&right_color=green" />
 ```
 
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge&left_color=red&right_color=green) (left_color=red, right_color=green)
+#### API
 
-- customized color and left text
+```bash
+curl -X GET "http://visitor-badge.example.net/count?page_id={page.id}"  
 
-```markdown
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge&left_color=red&right_color=green&left_text=HelloVisitors)
+// output: {"value": 100}
 ```
 
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge&left_color=red&right_color=green&left_text=HelloVisitors) (left_color=red, right_color=green, left_text=HelloVisitors)
+### Options
+| Params          | Required | Default | Description                                                  |
+| --------------- | -------- | ------- | ------------------------------------------------------------ |
+| `padge_id`      | Required | null    | Unique string to best represent your page                    |
+| `namespace`     | Optional | default | Unique key to group all your pages and avoid conflict with others |
+| `read`          | Optional | false   | Only return existing count, don't increment                   |
+| `unique (experimental)` | Optional | false | Only count unique request within a given window as set by timeframe param. Note: this is experimental flag may not work as desired |
+| `timeframe`     | Optional | 600     | Time window for which a request is considered as duplicate if unique param is set |
+| *`left_color` | Optional | #595959 | Left side color of the badge                                  |
+| *`left_text`  | Optional | visitor | Left side text of the badge                                   |
+| *`right_color`| Optional | #1283c3 | Right side color of the badge                                 |
 
-- customized color and a space between words in left text
+**Note:** * options only applied for path `/badge`
 
-```markdown
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge&left_color=red&right_color=green&left_text=Hello%20Visitors)
-```
+## Public Servers
+- URL: https://visitor-badge.one9x.com
 
-![visitor badge](https://visitor-badge.glitch.me/badge?page_id=jwenjian.visitor-badge&left_color=red&right_color=green&left_text=Hello%20Visitors) (left_color=red, right_color=green, left_text=Hello%20Visitors)
+    Free: Yes
 
-<a href="https://www.producthunt.com/posts/visitor-count-badge-for-your-github-repo?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-visitor-count-badge-for-your-github-repo" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=195146&theme=dark" alt="Visitor count badge for your Github Repo - A github badge to count visitor to your repository | Product Hunt Embed" style="width: 250px; height: 54px;" width="250px" height="54px" /></a>
+    Please be aware that this server is hosted on a homelab environment, which may result in occasional downtime or data loss. To minimize the risk of data loss, nightly data snapshots are taken at 12:00 AM IST.
 
----
+## What's next?
 
+What new features will be available in the next release?
 
-If you deployed forked project to your stable server and want to provide a free, stable service, which is very kind, please raise an issue to tell me so I can list your service url here:
+- Data backup
 
-> Before you do that, **DO update the md5_key in .env file to `guess_what`** so that former users will not lose their count, otherwise the count will start from 1.
+    Regularly backup the latest data into a safe place weekly and make it recoverable
 
-Other public services:
+- Stable unique count implementation
+    
+    Implement a stable solution to track unique visitor
 
--  https://visitor-badge.laobi.icu 
--  ~~https://visitor-badge.deta.dev/ (By [@Amresh Prasad Sinha](https://github.com/AmreshSinha))~~ (NO LONGER AVAILABLE)
--  ~~https://page-views.glitch.me~~ (NOT WOKRING)
+- Namespace Management
 
-Other implementations:
+  Ability to set configuration at namespace level
 
-> You can implement in other languages, if you has, please let me know and I will update this list.
+Have something in mind? [Just tell me...](https://github.com/ramank775/visitor-badge/issues/new)
 
-- NodeJS: [Lete114/visitor-badge](https://github.com/Lete114/visitor-badge)
-- Go: [Nathan13888/VisitorBadgeReloaded](https://github.com/Nathan13888/VisitorBadgeReloaded)
-
+#### Fork From
+> jwenjian：[https://github.com/jwenjian/visitor-badge](https://github.com/jwenjian/visitor-badge)

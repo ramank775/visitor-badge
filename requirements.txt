@@ -3,3 +3,4 @@ pybadges
 gunicorn
 python-dotenv
 redis
+ua-parser==1.0.1

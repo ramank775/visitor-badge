@@ -2,6 +2,7 @@ version: '3'
 
 volumes:
   redis-data:
+  backup-data:
 
 services:
   redis:
@@ -10,7 +11,7 @@ services:
       - 6379:6379
     volumes:
       - redis-data:/data
-  
+
   visitor-badge:
     build:
       context: .
@@ -19,3 +20,15 @@ services:
     environment:
       - md5_key=${md5_key}
       - redis_host=redis
+      - ADMIN_API_KEY=${ADMIN_API_KEY:-}
+
+  backup:
+    build:
+      context: ./backup
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - BACKUP_DIR=/backups
+    volumes:
+      - backup-data:/backups

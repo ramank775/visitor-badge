@@ -49,6 +49,7 @@
             <ul>
                 <li>Home</li>
                 <li><a href="#docs">Docs</a></li>
+                <li><a href="#admin">Admin API</a></li>
                 <li><a href="https://github.com/ramank775/visitor-badge" target="_blank">GitHub &nearr;</a></li>
             </ul>
         </nav>
@@ -60,7 +61,7 @@
         </p>
         <p><img src="/badge?page_id=visitor-badge"></p>
         <br>
-        <p><a href="https://github.com/ramank775/visitor-badge"><i>💗 Give a star 💗</i></a><a href="#docs"><b>Getting
+        <p><a href="https://github.com/ramank775/visitor-badge"><i>Give a star</i></a><a href="#docs"><b>Getting
                     started</b></a></p>
     </header>
     <main>
@@ -87,6 +88,12 @@
                     curl -X GET "http://visitor-badge.example.net/count?page_id=page.id" <br/>
                     // output: {"value": 100}
                 </code>
+
+                <h4>Unique Visitor API</h4>
+                <code lang="bash">
+                    curl -X GET "http://visitor-badge.example.net/count?page_id=page.id&unique=true" <br/>
+                    // output: {"value": 42, "method": "fingerprint"}
+                </code>
             </div>
             <h4>Options</h4>
             <table>
@@ -98,7 +105,7 @@
                 </tr>
                 <tbody>
                     <tr>
-                        <td>padge_id</td>
+                        <td>page_id</td>
                         <td>Required</td>
                         <td>null</td>
                         <td>Unique string to best represent your page</td>
@@ -107,7 +114,7 @@
                         <td>namespace</td>
                         <td>Optional</td>
                         <td>default</td>
-                        <td>Unique key to group all your pages and avoid conflict with others</td>
+                        <td>Unique key to group all your pages and avoid conflict with others (max 10 chars)</td>
                     </tr>
                     <tr>
                         <td>read</td>
@@ -116,39 +123,41 @@
                         <td>Only return existing count, don't increment</td>
                     </tr>
                     <tr>
-                        <td>unique (experimental)</td>
+                        <td>unique</td>
                         <td>Optional</td>
                         <td>false</td>
-                        <td>Only count unique request within a given window as set by timeframe param. Note: this is
-                            experimental flag may not work as desire</td>
+                        <td>Only count unique visitors within a given window. Uses cookie-based dedup with server-side fingerprint fallback for cross-origin embeds</td>
                     </tr>
                     <tr>
                         <td>timeframe</td>
                         <td>Optional</td>
                         <td>600</td>
-                        <td>Time window for which a request considered as duplicate if unique param is set</td>
+                        <td>Time window (seconds) for unique visitor dedup. Range: 60-86400 (1 min to 24 hrs)</td>
                     </tr>
                     <tr>
                         <td>*left_color</td>
                         <td>Optional</td>
                         <td>#595959</td>
-                        <td>left side color of the badge</td>
+                        <td>Left side color of the badge</td>
                     </tr>
                     <tr>
                         <td>*left_text</td>
                         <td>Optional</td>
                         <td>visitor</td>
-                        <td>left side text of the badge</td>
+                        <td>Left side text of the badge</td>
                     </tr>
                     <tr>
                         <td>*right_color</td>
                         <td>Optional</td>
                         <td>#1283c3</td>
-                        <td>right side color of the badge</td>
+                        <td>Right side color of the badge</td>
                     </tr>
                 </tbody>
             </table>
             <p><b>Note:</b> * options only applied for path /badge</p>
+
+            <h4>Bot Filtering</h4>
+            <p>Common bots (Googlebot, bingbot, crawlers, etc.) are automatically detected and excluded from visitor counts.</p>
 
             <h4>Public Servers:</h4>
             <li>
@@ -156,10 +165,34 @@
                 <b>Free</b>: Yes
                 <p class="warning">
                     Please be aware that this server is hosted on a homelab environment, which may result in occasional
-                    downtime or data loss. To minimize the risk of data loss, nightly data snapshots are taken at 12:00
-                    IST.
+                    downtime or data loss. To minimize the risk of data loss, automated hourly backups are taken with
+                    48-hour hourly retention and 30-day daily retention.
                 </p>
             </li>
+        </article>
+        <hr>
+        <article id="admin">
+            <h2>Admin API</h2>
+            <p>Manage namespace-level configuration. Requires <code>X-API-Key</code> header. Rate limited to 10 req/min per IP.</p>
+            <div>
+                <h4>List Namespaces</h4>
+                <code lang="bash">
+                    curl -H "X-API-Key: YOUR_KEY" http://localhost:5000/admin/namespaces
+                </code>
+
+                <h4>Set Namespace Defaults</h4>
+                <code lang="bash">
+                    curl -X PUT -H "X-API-Key: YOUR_KEY" -H "Content-Type: application/json" \<br/>
+                    &nbsp;&nbsp;-d '{"badge_defaults": {"left_color": "blue", "left_text": "hits"}}' \<br/>
+                    &nbsp;&nbsp;http://localhost:5000/admin/namespace/myns
+                </code>
+
+                <h4>Health Check</h4>
+                <code lang="bash">
+                    curl http://localhost:5000/health/backup <br/>
+                    // output: {"status": "healthy", "last_backup": "2026-03-29T12:00:00Z"}
+                </code>
+            </div>
         </article>
         <hr>
         <section>
@@ -168,16 +201,16 @@
                 <p>What new features will be available in the next release?</p>
             </header>
             <aside>
-                <h3>Data backup regularly</h3>
-                <p>Backup the latest data into a safe place weekly and make it recoverable</p>
+                <h3>Data Federation</h3>
+                <p>Allow independent servers to sync visitor data for shared namespaces</p>
             </aside>
             <aside>
-                <h3>Stable unique count implementation</h3>
-                <p>Implement a stable solution to track unique visitor </p>
+                <h3>Real-time Badges</h3>
+                <p>Show "X people viewing now" instead of total count</p>
             </aside>
             <aside>
-                <h3>Namespace Management</h3>
-                <p>- Ability to set configuration at namespace level</p>
+                <h3>Active Viewers</h3>
+                <p>Track live presence per page with time-windowed counting</p>
             </aside>
 
             <aside>
@@ -191,7 +224,7 @@
     <footer>
         <hr>
         <p>
-            Made by <a href="https://github.com/ramank775" target="_blank">Raman</a> and ❤️
+            Made by <a href="https://github.com/ramank775" target="_blank">Raman</a> with love
         </p>
     </footer>
 </body>
